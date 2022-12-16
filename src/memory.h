@@ -37,9 +37,7 @@ public:
         std::memcpy(memory, code, len);
     }
 
-    ~Memory(){
-        delete[] memory;
-    }
+    ~Memory() = default;
     std::uint64_t load(uint64_t, uint64_t);
     void store(uint64_t, uint64_t, uint64_t);
 };

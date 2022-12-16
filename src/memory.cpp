@@ -2,6 +2,7 @@
 // Created by John on 15/12/2022.
 //
 
+#include <cstdio>
 #include "memory.h"
 
 std::uint64_t Memory::load(uint64_t addr, uint64_t size) {
@@ -80,19 +81,24 @@ uint64_t Memory::load8(uint64_t addr) {
 }
 
 uint64_t Memory::load16(uint64_t addr) {
-    uint64_t index = (addr)/2;
-    auto* temp = reinterpret_cast<uint16_t *>(&memory); //fixme: might need to rearrange bytes to little-endian order
-    return temp[index];
+    return (static_cast<uint32_t>(memory[addr])) |
+           (static_cast<uint32_t>(memory[addr+1]) << 8);
 }
 
 uint64_t Memory::load32(uint64_t addr) {
-    uint64_t index = (addr)/4;
-    auto* temp = reinterpret_cast<uint32_t *>(&memory); //fixme: might need to rearrange bytes to little-endian order
-    return temp[index];
+    return (static_cast<uint32_t>(memory[addr])) |
+            (static_cast<uint32_t>(memory[addr+1]) << 8) |
+            (static_cast<uint32_t>(memory[addr+2]) << 16) |
+            (static_cast<uint32_t>(memory[addr+3]) << 24);
 }
 
 uint64_t Memory::load64(uint64_t addr) {
-    uint64_t index = (addr)/8;
-    auto* temp = reinterpret_cast<uint64_t *>(&memory); //fixme: might need to rearrange bytes to little-endian order
-    return temp[index];
+    return (static_cast<uint64_t>(memory[addr])) |
+           (static_cast<uint64_t>(memory[addr+1]) << 8) |
+           (static_cast<uint64_t>(memory[addr+2]) << 16) |
+           (static_cast<uint64_t>(memory[addr+3]) << 24) |
+           (static_cast<uint64_t>(memory[addr+4]) << 32) |
+           (static_cast<uint64_t>(memory[addr+5]) << 40) |
+           (static_cast<uint64_t>(memory[addr+6]) << 48) |
+           (static_cast<uint64_t>(memory[addr+7]) << 56);
 }

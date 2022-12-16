@@ -5,7 +5,7 @@
 #include "bus.h"
 
 Bus::Bus(std::uint8_t *data, std::uint64_t len) {
-    memcpy(m_dram.get_memory(), data, len);
+    m_dram = Memory(data,len);
 }
 
 std::uint64_t Bus::load(std::uint64_t addr, std::uint64_t size) {
