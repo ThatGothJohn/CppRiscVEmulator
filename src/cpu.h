@@ -10,19 +10,26 @@
 #include <cstring>
 #include <cstdio>
 
+#include "bus.h"
+
 class CPU {
 public:
     CPU();
     CPU(uint8_t*, uint64_t);
     ~CPU();
 
-    void cycle();
+    int8_t cycle();
+    void loop();
     void dump_registers();
 private:
     std::uint64_t m_pc{};
-    std::uint8_t* m_memory{};
+    Bus bus;
+    std::uint64_t* csrs; //Control and status registers
     std::uint64_t* m_integer_registers{};
     std::uint64_t* m_floating_point_registers{};
+
+    std::uint64_t load_csr(std::uint64_t);
+    void load_csr(std::uint64_t,std::uint64_t);
 
     std::uint64_t fetch();
     void execute(std::uint64_t);
