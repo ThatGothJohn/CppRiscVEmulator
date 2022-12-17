@@ -51,5 +51,7 @@ int main(int argc, char** argv){
 //    test.cycle();
     test.dump_registers();
     test.loop();
+    test.dump_registers();
+
     return 0;
 }

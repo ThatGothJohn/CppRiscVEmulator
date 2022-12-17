@@ -17,6 +17,7 @@ std::uint64_t Memory::load(uint64_t addr, uint64_t size) {
             return load64(addr);
         default:
             assert(false && "Error: Attempted to load an unsupported data size from memory\n");
+            return -1;
     }
 }
 

@@ -117,7 +117,7 @@ uint8_t CPU::execute(std::uint64_t instruction) {
             }
             break;
         case 0x13:
-            imm = (int64_t) ((int32_t) (instruction & 0xfff00000)) >> 20;
+            imm = (int64_t)((int32_t) (instruction & 0xfff00000)) >> 20;
             shamt = (std::uint32_t) (imm & 0x3f);
 
             switch (funct3) {
@@ -182,7 +182,7 @@ uint8_t CPU::execute(std::uint64_t instruction) {
             switch (funct3) {
                 case 0x0: //addiw
                     std::printf("addiw: rd=x%02ld imm=0x%08lX (%ld) rs1=x%02ld\n", rd, imm, imm, rs1);
-                    write_integer_register(rd, (int64_t) ((int32_t) (read_integer_register(rs1) + imm)));
+                    write_integer_register(rd, (int64_t)((int32_t)(read_integer_register(rs1) + imm)));
                     break;
                 case 0x1: //slliw
                     std::printf("slliw: rd=x%02ld shamt=0x%08lX (%ld) rs1=x%02ld\n", rd, shamt, shamt, rs1);
@@ -420,6 +420,7 @@ uint8_t CPU::execute(std::uint64_t instruction) {
                   | (instruction & 0xFF000)
                   | ((instruction >> 9) & 0x800)
                   | ((instruction >> 20) & 0x7FE);
+            std::printf("jal: imm=0x%08lX (%ld)\n", imm, imm);
             m_pc += imm - 4;
             break;
         default:
@@ -453,7 +454,7 @@ void CPU::dump_registers() {
 
 void CPU::loop() {
     while (cycle() == 0){
-//        dump_registers();
+        dump_registers();
     }
 }
 

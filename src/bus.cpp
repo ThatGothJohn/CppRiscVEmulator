@@ -13,6 +13,7 @@ std::uint64_t Bus::load(std::uint64_t addr, std::uint64_t size) {
         return m_dram.load(addr, size);
     }
     assert(false && "Error: Cannot load address below 0x80000000, MMIO not implemented yet");
+    return -1;
 }
 
 void Bus::store(std::uint64_t addr, std::uint64_t size, std::uint64_t data) {
