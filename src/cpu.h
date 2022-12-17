@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cstring>
 #include <cstdio>
+#include <string>
 
 #include "bus.h"
 

@@ -8,11 +8,11 @@
 
 CPU::CPU() {
     m_pc = 0x80000000;
-    m_integer_registers = new std::uint64_t[32];
-    csrs = new std::uint64_t[4096];
+    m_integer_registers = new std::uint64_t[32]();
+    csrs = new std::uint64_t[4096]();
     //setup x0
     m_integer_registers[0] = 0x0000000000000000;
-    m_floating_point_registers = new std::uint64_t[32];
+    m_floating_point_registers = new std::uint64_t[32]();
 
     bus = Bus();
 
@@ -22,12 +22,12 @@ CPU::CPU() {
 
 CPU::CPU(uint8_t *binary, uint64_t binary_size) {
     m_pc = 0x80000000;
-    m_integer_registers = new std::uint64_t[32];
-    csrs = new std::uint64_t[4096];
+    m_integer_registers = new std::uint64_t[32]();
+    csrs = new std::uint64_t[4096]();
 
     //setup x0
     m_integer_registers[0] = 0x00000000;
-    m_floating_point_registers = new std::uint64_t[32];
+    m_floating_point_registers = new std::uint64_t[32]();
 
     bus = Bus(binary, binary_size);
 
@@ -172,18 +172,30 @@ void CPU::execute(std::uint64_t instruction) {
 }
 
 void CPU::dump_registers() {
-    std::printf("PC: %04lX\n", m_pc);
-    for (int x = 0; x < 32; x++) {
-        if (x%16 == 0 && x!=0)
-            std::printf("\n");
-        std::printf("x%d: %lX  ", x, m_integer_registers[x]);
+    auto output = new char[2048]();
+
+    std::string abi[] = {"zero", " ra ", " sp ", " gp ", " tp ", " t0 ", " t1 ", " t2 ", " s0 ", " s1 ", " a0 ",
+                        " a1 ", " a2 ", " a3 ", " a4 ", " a5 ", " a6 ", " a7 ", " s2 ", " s3 ", " s4 ", " s5 ",
+                        " s6 ", " s7 ", " s8 ", " s9 ", " s10", " s11", " t3 ", " t4 ", " t5 ", " t6 "};
+
+    for (int i = 0; i<32;i+=4){
+        auto temp = new char[1024](); //more allocations than necessary, but this is for debugging, so it's all good
+        std::sprintf(temp, "x%02d(%s):%18lX x%02d(%s):%18lX x%02d(%s):%18lX x%02d(%s):%18lX",
+                     i, abi[i].c_str(), m_integer_registers[i],
+                     i+1, abi[i+1].c_str(), m_integer_registers[i+1],
+                     i+2, abi[i+2].c_str(), m_integer_registers[i+2],
+                     i+3, abi[i+3].c_str(), m_integer_registers[i+3]
+        );
+        std::sprintf(output, "%s\n%s", output,temp);
+        delete[] temp;
     }
-    std::printf("\n");
+    std::printf("PC: %18lX", m_pc);
+    std::printf("%s\n", output);
 }
 
 void CPU::loop() {
     while (cycle() == 0){
-        //dump_registers();
+        dump_registers();
     }
 }
 

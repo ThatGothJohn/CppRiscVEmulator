@@ -28,11 +28,11 @@ public:
     uint8_t *get_memory() const;
 
     Memory(){
-        memory = new std::uint8_t[MEMORY_SIZE];
+        memory = new std::uint8_t[MEMORY_SIZE]();
     }
 
     Memory(uint8_t* code, uint64_t len){
-        memory = new std::uint8_t[MEMORY_SIZE];
+        memory = new std::uint8_t[MEMORY_SIZE]();
         assert(len < MEMORY_SIZE && "Tried loading a binary that is too large");
         std::memcpy(memory, code, len);
     }
