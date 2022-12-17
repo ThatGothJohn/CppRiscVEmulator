@@ -2,7 +2,6 @@
 // Created by John on 15/12/2022.
 //
 
-#include <cstdio>
 #include "memory.h"
 
 std::uint64_t Memory::load(uint64_t addr, uint64_t size) {
@@ -41,23 +40,19 @@ void Memory::store(uint64_t addr, uint64_t size, uint64_t data) {
     }
 }
 
-uint8_t *Memory::get_memory() const {
-    return memory;
-}
-
 void Memory::store8(uint64_t addr, uint64_t data) {
-    uint64_t index = (addr);
+    uint64_t index = (addr - DRAM_BASE);
     memory[index] = (uint8_t)(data & 0xff);
 }
 
 void Memory::store16(uint64_t addr, uint64_t data) {
-    uint64_t index = (addr);
+    uint64_t index = (addr - DRAM_BASE);
     memory[index] = (uint8_t)(data & 0xff);
     memory[index + 1] = (uint8_t)((data >> 8) & 0xff);
 }
 
 void Memory::store32(uint64_t addr, uint64_t data) {
-    uint64_t index = (addr);
+    uint64_t index = (addr - DRAM_BASE);
     memory[index] = (uint8_t)(data & 0xff);
     memory[index + 1] = (uint8_t)((data >> 8) & 0xff);
     memory[index + 2] = (uint8_t)((data >> 16) & 0xff);
@@ -65,7 +60,7 @@ void Memory::store32(uint64_t addr, uint64_t data) {
 }
 
 void Memory::store64(uint64_t addr, uint64_t data) {
-    uint64_t index = (addr);
+    uint64_t index = (addr - DRAM_BASE);
     memory[index] = (uint8_t)(data & 0xff);
     memory[index + 1] = (uint8_t)((data >> 8) & 0xff);
     memory[index + 2] = (uint8_t)((data >> 16) & 0xff);

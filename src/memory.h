@@ -25,8 +25,6 @@ private:
     uint64_t load32(uint64_t);
     uint64_t load64(uint64_t);
 public:
-    uint8_t *get_memory() const;
-
     Memory(){
         memory = new std::uint8_t[MEMORY_SIZE]();
     }
