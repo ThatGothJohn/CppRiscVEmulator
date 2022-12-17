@@ -18,6 +18,7 @@ std::uint64_t Bus::load(std::uint64_t addr, std::uint64_t size) {
 void Bus::store(std::uint64_t addr, std::uint64_t size, std::uint64_t data) {
     if (DRAM_BASE <= addr){
         m_dram.store(addr,size,data);
+        return;
     }
     assert(false && "Error: Cannot write to an address below 0x80000000, MMIO not implemented yet");
 }

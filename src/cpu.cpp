@@ -216,8 +216,8 @@ uint8_t CPU::execute(std::uint64_t instruction) {
             }
             break;
         case 0x23: //Store Instructions
-            imm = ((int64_t) ((int32_t) (instruction & 0xfe000000)) >> 20) | ((instruction >> 7) & 0x1f);
-            addr = read_integer_register(rs1) + imm;
+            imm = ((uint64_t)((int64_t)((int32_t)(instruction & 0xFE000000)) >> 20)) | ((instruction >> 7) & 0x1F);
+            addr = (read_integer_register(rs1) + imm) % 0xFFFFFFFF;
             switch (funct3) {
                 case 0x0: //sb
                     std::printf("sb: rs2=x%02ld addr=0x%08ld\n", rs2, addr);
@@ -453,7 +453,7 @@ void CPU::dump_registers() {
 
 void CPU::loop() {
     while (cycle() == 0){
-        dump_registers();
+//        dump_registers();
     }
 }
 

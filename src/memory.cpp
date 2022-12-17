@@ -41,26 +41,22 @@ void Memory::store(uint64_t addr, uint64_t size, uint64_t data) {
 }
 
 void Memory::store8(uint64_t addr, uint64_t data) {
-    uint64_t index = (addr - DRAM_BASE);
-    memory[index] = (uint8_t)(data & 0xff);
+    memory[addr] = (uint8_t)(data & 0xff);
 }
 
 void Memory::store16(uint64_t addr, uint64_t data) {
-    uint64_t index = (addr - DRAM_BASE);
-    memory[index] = (uint8_t)(data & 0xff);
-    memory[index + 1] = (uint8_t)((data >> 8) & 0xff);
+    memory[addr] = (uint8_t)(data & 0xff);
+    memory[addr + 1] = (uint8_t)((data >> 8) & 0xff);
 }
 
 void Memory::store32(uint64_t addr, uint64_t data) {
-    uint64_t index = (addr - DRAM_BASE);
-    memory[index] = (uint8_t)(data & 0xff);
-    memory[index + 1] = (uint8_t)((data >> 8) & 0xff);
-    memory[index + 2] = (uint8_t)((data >> 16) & 0xff);
-    memory[index + 3] = (uint8_t)((data >> 24) & 0xff);
+    memory[addr] = (uint8_t)(data & 0xff);
+    memory[addr + 1] = (uint8_t)((data >> 8) & 0xff);
+    memory[addr + 2] = (uint8_t)((data >> 16) & 0xff);
+    memory[addr + 3] = (uint8_t)((data >> 24) & 0xff);
 }
 
 void Memory::store64(uint64_t addr, uint64_t data) {
-    addr = addr - DRAM_BASE;
     memory[addr] = (uint8_t)(data & 0xff);
     memory[addr + 1] = (uint8_t)((data >> 8) & 0xff);
     memory[addr + 2] = (uint8_t)((data >> 16) & 0xff);
