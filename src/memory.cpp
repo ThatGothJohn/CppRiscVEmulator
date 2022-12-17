@@ -60,15 +60,15 @@ void Memory::store32(uint64_t addr, uint64_t data) {
 }
 
 void Memory::store64(uint64_t addr, uint64_t data) {
-    uint64_t index = (addr - DRAM_BASE);
-    memory[index] = (uint8_t)(data & 0xff);
-    memory[index + 1] = (uint8_t)((data >> 8) & 0xff);
-    memory[index + 2] = (uint8_t)((data >> 16) & 0xff);
-    memory[index + 3] = (uint8_t)((data >> 24) & 0xff);
-    memory[index + 4] = (uint8_t)((data >> 32) & 0xff);
-    memory[index + 5] = (uint8_t)((data >> 40) & 0xff);
-    memory[index + 6] = (uint8_t)((data >> 48) & 0xff);
-    memory[index + 7] = (uint8_t)((data >> 56) & 0xff);
+    addr = addr - DRAM_BASE;
+    memory[addr] = (uint8_t)(data & 0xff);
+    memory[addr + 1] = (uint8_t)((data >> 8) & 0xff);
+    memory[addr + 2] = (uint8_t)((data >> 16) & 0xff);
+    memory[addr + 3] = (uint8_t)((data >> 24) & 0xff);
+    memory[addr + 4] = (uint8_t)((data >> 32) & 0xff);
+    memory[addr + 5] = (uint8_t)((data >> 40) & 0xff);
+    memory[addr + 6] = (uint8_t)((data >> 48) & 0xff);
+    memory[addr + 7] = (uint8_t)((data >> 56) & 0xff);
 }
 
 uint64_t Memory::load8(uint64_t addr) {

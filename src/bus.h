@@ -7,8 +7,6 @@
 
 #include "memory.h"
 
-#define DRAM_BASE 0x80000000
-
 struct Bus {
 private:
     Memory m_dram;

@@ -9,8 +9,8 @@
 #include <cassert>
 #include <cstring>
 
-#define MEMORY_SIZE (1024*1024*64) //constant for the default size of the ram
 #define DRAM_BASE 0x80000000
+#define MEMORY_SIZE (1024*1024*128) //constant for the default size of the ram (128MiB)
 
 struct Memory {
 private:
