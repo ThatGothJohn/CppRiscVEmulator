@@ -49,7 +49,7 @@ int main(int argc, char** argv){
 //    test.cycle();
 //    test.cycle();
 //    test.cycle();
-//    test.dump_registers();
+    test.dump_registers();
     test.loop();
     return 0;
 }

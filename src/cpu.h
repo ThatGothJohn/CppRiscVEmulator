@@ -12,6 +12,7 @@
 #include <string>
 
 #include "bus.h"
+#include "memory.h"
 
 class CPU {
 public:
@@ -33,7 +34,7 @@ private:
     void load_csr(std::uint64_t,std::uint64_t);
 
     std::uint64_t fetch();
-    void execute(std::uint64_t);
+    uint8_t execute(std::uint64_t);
 
     void write_integer_register(std::uint64_t, std::uint64_t);
     uint64_t read_integer_register(std::uint64_t);
