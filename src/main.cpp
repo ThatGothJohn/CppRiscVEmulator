@@ -20,7 +20,7 @@ void loadFile(const std::string& filename, uint8_t* data, std::int64_t size) {
 int main(int argc, char** argv){
     std::string filename;
     if (argc < 2){
-        filename = "../fib.bin";
+        filename = "../test.bin";
     }
     else {
         filename = *argv[1];

@@ -38,6 +38,9 @@ private:
 
     void write_integer_register(std::uint64_t, std::uint64_t);
     uint64_t read_integer_register(std::uint64_t);
+
+    uint64_t load(uint64_t, uint64_t);
+    void store(uint64_t, uint64_t, uint64_t);
 };
 
 #endif //CPPRV64_CPU_H
