@@ -450,6 +450,7 @@ void CPU::dump_registers() {
     }
     std::printf("PC: %18lX", m_pc);
     std::printf("%s\n", output);
+    delete[] output;
 }
 
 void CPU::loop() {
