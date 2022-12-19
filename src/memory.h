@@ -16,14 +16,15 @@ struct Memory {
 private:
     std::uint8_t* memory;
 
-    void store8(uint64_t, uint64_t);
-    void store16(uint64_t, uint64_t);
-    void store32(uint64_t, uint64_t);
-    void store64(uint64_t, uint64_t);
     uint64_t load8(uint64_t);
     uint64_t load16(uint64_t);
     uint64_t load32(uint64_t);
     uint64_t load64(uint64_t);
+
+    void store8(uint64_t, uint64_t);
+    void store16(uint64_t, uint64_t);
+    void store32(uint64_t, uint64_t);
+    void store64(uint64_t, uint64_t);
 public:
     Memory(){
         memory = new std::uint8_t[MEMORY_SIZE]();
@@ -36,6 +37,7 @@ public:
     }
 
     ~Memory() = default;
+
     std::uint64_t load(uint64_t, uint64_t);
     void store(uint64_t, uint64_t, uint64_t);
 };

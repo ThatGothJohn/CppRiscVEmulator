@@ -41,6 +41,33 @@ void Memory::store(uint64_t addr, uint64_t size, uint64_t data) {
     }
 }
 
+uint64_t Memory::load8(uint64_t addr) {
+    return memory[addr];
+}
+
+uint64_t Memory::load16(uint64_t addr) {
+    return (static_cast<uint32_t>(memory[addr])) |
+           (static_cast<uint32_t>(memory[addr+1]) << 8);
+}
+
+uint64_t Memory::load32(uint64_t addr) {
+    return (static_cast<uint32_t>(memory[addr])) |
+           (static_cast<uint32_t>(memory[addr+1]) << 8) |
+           (static_cast<uint32_t>(memory[addr+2]) << 16) |
+           (static_cast<uint32_t>(memory[addr+3]) << 24);
+}
+
+uint64_t Memory::load64(uint64_t addr) {
+    return (static_cast<uint64_t>(memory[addr])) |
+           (static_cast<uint64_t>(memory[addr+1]) << 8) |
+           (static_cast<uint64_t>(memory[addr+2]) << 16) |
+           (static_cast<uint64_t>(memory[addr+3]) << 24) |
+           (static_cast<uint64_t>(memory[addr+4]) << 32) |
+           (static_cast<uint64_t>(memory[addr+5]) << 40) |
+           (static_cast<uint64_t>(memory[addr+6]) << 48) |
+           (static_cast<uint64_t>(memory[addr+7]) << 56);
+}
+
 void Memory::store8(uint64_t addr, uint64_t data) {
     memory[addr] = (uint8_t)(data & 0xff);
 }
@@ -66,31 +93,4 @@ void Memory::store64(uint64_t addr, uint64_t data) {
     memory[addr + 5] = (uint8_t)((data >> 40) & 0xff);
     memory[addr + 6] = (uint8_t)((data >> 48) & 0xff);
     memory[addr + 7] = (uint8_t)((data >> 56) & 0xff);
-}
-
-uint64_t Memory::load8(uint64_t addr) {
-    return memory[addr];
-}
-
-uint64_t Memory::load16(uint64_t addr) {
-    return (static_cast<uint32_t>(memory[addr])) |
-           (static_cast<uint32_t>(memory[addr+1]) << 8);
-}
-
-uint64_t Memory::load32(uint64_t addr) {
-    return (static_cast<uint32_t>(memory[addr])) |
-            (static_cast<uint32_t>(memory[addr+1]) << 8) |
-            (static_cast<uint32_t>(memory[addr+2]) << 16) |
-            (static_cast<uint32_t>(memory[addr+3]) << 24);
-}
-
-uint64_t Memory::load64(uint64_t addr) {
-    return (static_cast<uint64_t>(memory[addr])) |
-           (static_cast<uint64_t>(memory[addr+1]) << 8) |
-           (static_cast<uint64_t>(memory[addr+2]) << 16) |
-           (static_cast<uint64_t>(memory[addr+3]) << 24) |
-           (static_cast<uint64_t>(memory[addr+4]) << 32) |
-           (static_cast<uint64_t>(memory[addr+5]) << 40) |
-           (static_cast<uint64_t>(memory[addr+6]) << 48) |
-           (static_cast<uint64_t>(memory[addr+7]) << 56);
 }
