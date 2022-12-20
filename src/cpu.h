@@ -21,8 +21,9 @@ public:
 
     int8_t cycle();
     void loop();
-    void dump_registers();
 
+    void dump_registers();
+    void dump_csrs();
 private:
     enum Mode {
         User = 0b00,
@@ -49,6 +50,52 @@ private:
     std::uint64_t fetch();
     uint8_t execute(std::uint64_t);
 };
+//A whole bunch of constants for CSR addresses
 
+// Machine-level CSRs.
+/// Hardware thread ID.
+#define MHARTID 0xf14
+/// Machine status register.
+#define MSTATUS 0x300
+/// Machine exception delefation register.
+#define MEDELEG 0x302
+/// Machine interrupt delefation register.
+#define MIDELEG 0x303
+/// Machine interrupt-enable register.
+#define MIE 0x304
+/// Machine trap-handler base address.
+#define MTVEC 0x305
+/// Machine counter enable.
+#define MCOUNTEREN 0x306
+/// Scratch register for machine trap handlers.
+#define MSCRATCH 0x340
+/// Machine exception program counter.
+#define MEPC 0x341
+/// Machine trap cause.
+#define MCAUSE 0x342
+/// Machine bad address or instruction.
+#define MTVAL 0x343
+/// Machine interrupt pending.
+#define MIP 0x344
+
+// Supervisor-level CSRs.
+/// Supervisor status register.
+#define SSTATUS 0x100
+/// Supervisor interrupt-enable register.
+#define SIE 0x104
+/// Supervisor trap handler base address.
+#define STVEC 0x105
+/// Scratch register for supervisor trap handlers.
+#define SSCRATCH 0x140
+/// Supervisor exception program counter.
+#define SEPC 0x141
+/// Supervisor trap cause.
+#define SCAUSE 0x142
+/// Supervisor bad address or instruction.
+#define STVAL 0x143
+/// Supervisor interrupt pending.
+#define SIP 0x144
+/// Supervisor address translation and protection.
+#define SATP 0x180
 
 #endif //CPPRV64_CPU_H

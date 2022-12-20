@@ -52,6 +52,7 @@ int main(int argc, char** argv){
     test.dump_registers();
     test.loop();
     test.dump_registers();
+    test.dump_csrs();
 
     return 0;
 }

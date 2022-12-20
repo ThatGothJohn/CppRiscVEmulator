@@ -16,7 +16,7 @@ CPU::CPU(uint8_t *binary, uint64_t binary_size) {
 
     bus = Bus(binary, binary_size);
 
-    //setup x2 with the size of the memory when the cpu is instantiated
+    //setup x2 (sp) with the size of the memory when the cpu is instantiated
     m_integer_registers[2] = DRAM_BASE+MEMORY_SIZE;
 }
 
@@ -49,6 +49,12 @@ void CPU::dump_registers() {
     delete[] output;
 }
 
+void CPU::dump_csrs() {
+    std::printf("mstatus:%18lX mtvec:%18lX mepc:%18lX mcause:%18lX\nsstatus:%18lX stvec:%18lX sepc:%18lX scause:%18lX\n",
+                load_csr(MSTATUS), load_csr(MTVEC), load_csr(MEPC), load_csr(MCAUSE),
+                load_csr(SSTATUS), load_csr(STVEC), load_csr(SEPC), load_csr(SCAUSE));
+}
+
 uint64_t CPU::load_integer_register(std::uint64_t reg) {
     assert(reg <= 32 && "attempted to read from an invalid integer register");
     return m_integer_registers[reg];
@@ -56,21 +62,21 @@ uint64_t CPU::load_integer_register(std::uint64_t reg) {
 
 void CPU::store_integer_register(std::uint64_t reg, std::uint64_t data) {
     assert(reg <= 32 && "attempted to write to an invalid integer register");
-    if (reg == 0)
+    if (reg == 0) //emulate ZERO register
         return;
     m_integer_registers[reg] = data;
 }
 
 std::uint64_t CPU::load_csr(std::uint64_t addr) {
-    if (addr == 0x104) //SIE
-        return csrs[0x304] & csrs[0x303]; //MIE & MIDELEG
+    if (addr == SIE)
+        return csrs[MIE] & csrs[MIDELEG];
     else
         return csrs[addr];
 }
 
 void CPU::store_csr(std::uint64_t addr, std::uint64_t value) {
-    if (addr == 0x104) //SIE
-        csrs[0x304] = (csrs[0x304] & !csrs[0x303]) | (value & csrs[0x303]); //MIE = (MIE & MIDELEG) | (value & MIDELEG)
+    if (addr == SIE)
+        csrs[MIE] = (csrs[MIE] & !csrs[MIDELEG]) | (value & csrs[MIDELEG]);
     else
         csrs[addr] = value;
 }
@@ -104,6 +110,7 @@ void CPU::loop() {
     while (cycle() == 0){
 #if DEBUG
         dump_registers();
+        dump_csrs();
 #endif
     }
 }
@@ -116,7 +123,7 @@ uint8_t CPU::execute(std::uint64_t instruction) {
     std::uint64_t funct3 = (instruction >> 12) & 0x7;
     std::uint64_t funct7 = (instruction >> 25) & 0x7f;
 
-    std::uint64_t imm, addr, shamt, temp;
+    std::uint64_t imm, addr, shamt, temp, funct5, csr_addr; // acquire, release will be needed for proper atomics
 
 //    printf("Instruction %08lX : ", instruction);
     switch (opcode) {
@@ -278,6 +285,50 @@ uint8_t CPU::execute(std::uint64_t instruction) {
                     break;
                 default:
                     std::printf("ERROR : Invalid Store : funct3=%lX\n", funct3);
+                    return -1;
+            }
+            break;
+        case 0x2f: //RV64A : Atomic instructions
+            funct5 = (funct7 & 0b11111100) >> 2;
+            //acquire = (funct7 & 0b00000010) >> 1; //acquire access
+            //release = funct7 & 0b00000001; //release access
+            switch (funct3) {
+                case 0x2:
+                    switch (funct5) {
+                        case 0x00: //amoadd.w
+                            temp = load(load_integer_register(rs1), 32);
+                            store(load_integer_register(rs1), 32, load_integer_register(rs2) + temp);
+                            store_integer_register(rd, temp);
+                            break;
+                        case 0x01: //amoswap.w
+                            temp = load(load_integer_register(rs1), 32);
+                            store(load_integer_register(rs1), 32, load_integer_register(rs2));
+                            store_integer_register(rd, temp);
+                            break;
+                        default:
+                            std::printf("ERROR : Not Implemented Yet : funct5=%lX\n", funct5);
+                            return -1;
+                    }
+                    break;
+                case 0x3:
+                    switch (funct5) {
+                        case 0x00: //amoadd.d
+                            temp = load(load_integer_register(rs1), 64);
+                            store(load_integer_register(rs1), 32, load_integer_register(rs2) + temp);
+                            store_integer_register(rd, temp);
+                            break;
+                        case 0x01: //amoswap.d
+                            temp = load(load_integer_register(rs1), 64);
+                            store(load_integer_register(rs1), 32, load_integer_register(rs2));
+                            store_integer_register(rd, temp);
+                            break;
+                        default:
+                            std::printf("ERROR : Not Implemented Yet : funct5=%lX\n", funct5);
+                            return -1;
+                    }
+                    break;
+                default:
+                    std::printf("ERROR : Not Implemented Yet : funct3=%lX\n", funct3);
                     return -1;
             }
             break;
@@ -468,6 +519,73 @@ uint8_t CPU::execute(std::uint64_t instruction) {
                   | ((instruction >> 20) & 0x7FE);
 //            std::printf("jal: imm=0x%08lX (%ld)\n", imm, imm);
             m_pc += imm - 4;
+            break;
+        case 0x73:
+            csr_addr = (instruction & 0xfff00000) >> 20; //csr address
+            switch (funct3) {
+                case 0x0:
+                    if (funct7 == 0x9){ //sfence.vma
+                        // do nothing
+                    } else if (rs2 == 0x2) {
+                        if (funct7 == 0x8) { //sret
+                            m_pc = load_csr(SEPC);
+                            mode = ((load_csr(SSTATUS) >> 8) & 1) == 1 ? Mode::Supervisor : Mode::User;
+                            store_csr(SSTATUS, ((load_csr(SSTATUS) >> 5) & 1) == 1 ? load_csr(SSTATUS) | 2 : load_csr(SSTATUS) & 0xFFFFFFFFFFFFFFFD);
+                            store_csr(SSTATUS, load_csr(SSTATUS) | 32);
+                            store_csr(SSTATUS, load_csr(SSTATUS) & 0xFFFFFFFFFFFFFEFF);
+                        } else if (funct7 == 0x18) { //mret
+                            m_pc = load_csr(MEPC);
+                            switch ((load_csr(MSTATUS)>>11) & 0b11) {
+                                case 2:
+                                    mode = Mode::Machine;
+                                    break;
+                                case 1:
+                                    mode = Mode::Supervisor;
+                                    break;
+                                default:
+                                    mode = Mode::User;
+                                    break;
+                            }
+                            store_csr(MSTATUS, ((load_csr(MSTATUS) >> 7) &  1) == 1 ? load_csr(MSTATUS) | 8 : load_csr(MSTATUS) & 0xFFFFFFFFFFFFFFF7);
+                        }
+                    } else {
+                        std::printf("ERROR: Instruction with opcode %04lX : Not Implemented\n", opcode);
+                        return -1;
+                    }
+                    break;
+                case 0x1: //csrrw
+                    temp = load_csr(csr_addr);
+                    store_csr(csr_addr, load_integer_register(rs1));
+                    store_integer_register(rd, temp);
+                    break;
+                case 0x2: //csrrs
+                    temp = load_csr(csr_addr);
+                    store_csr(csr_addr, temp | load_integer_register(rs1));
+                    store_integer_register(rd, temp);
+                    break;
+                case 0x3: //csrrc
+                    temp = load_csr(csr_addr);
+                    store_csr(csr_addr, temp & (0xFFFFFFFFFFFFFFFF ^ load_integer_register(rs1))); //NOTE: maybe wrong?
+                    store_integer_register(rd, temp);
+                    break;
+                case 0x5: //csrrwi
+                    store_integer_register(rd, load_csr(csr_addr));
+                    store_csr(csr_addr, rs1);
+                    break;
+                case 0x6: //csrrsi
+                    temp = load_csr(csr_addr);
+                    store_csr(csr_addr, temp | rs1);
+                    store_integer_register(rd, temp);
+                    break;
+                case 0x7: //csrrci
+                    temp = load_csr(csr_addr);
+                    store_csr(csr_addr, temp & (0xFFFFFFFFFFFFFFFF ^ rs1));
+                    store_integer_register(rd, temp);
+                    break;
+                default:
+                    std::printf("ERROR: Instruction with opcode %04lX : Not Implemented\n", opcode);
+                    return -1;
+            }
             break;
         default:
             std::printf("ERROR: Instruction with opcode %04lX : Not Implemented\n", opcode);
